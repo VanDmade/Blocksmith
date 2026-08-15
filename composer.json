@@ -1,0 +1,47 @@
+{
+    "name": "vandmade/blocksmith",
+    "description": "Document management for Laravel with tamper-evident revision history — hash-chained, Merkle-anchored, and per-user signed.",
+    "type": "package",
+    "license": "Apache License",
+    "autoload": {
+        "psr-4": {
+            "VanDmade\\Blocksmith\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "VanDmade\\Blocksmith\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Michael VanDerwerker",
+            "email": "michaelvanderwerkerllc@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.3|^12.0|^13.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0",
+        "phpstan/phpstan": "^2.2",
+        "larastan/larastan": "^3.10"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse --no-progress"
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "VanDmade\\Blocksmith\\BlocksmithServiceProvider"
+            ]
+        }
+    }
+}
