@@ -17,6 +17,7 @@ These descriptions are pulled straight from the comments in the config file itse
 | `hash_algorithm` | `'sha256'` | Hash algorithm used for content hashing and the Merkle tree. |
 | `chunk_size` | `8192` | The chunk size to use when hashing and uploading files. |
 | `disk` | `'local'` | Where to upload the documents too. |
+| `allowed_file_types` | `[]` | File extensions allowed for document uploads (e.g. `['pdf', 'png', 'jpg']`). Empty array means no restriction - any file type is accepted. |
 | `verify_content` | `true` | Whether to verify the content of the document when verifying a revision. |
 | `organization_model` | `null` | This is the model that will be the "Organization" and used for organization scoping. |
 | `tables` | see below | Tables to add organization scoping to and the column to use. |

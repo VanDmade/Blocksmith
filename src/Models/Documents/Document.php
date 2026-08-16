@@ -36,6 +36,7 @@ class Document extends Model
     protected $casts = [
         'status' => DocumentStatus::class,
         'metadata' => 'array',
+        'keywords' => 'array',
         'last_edited_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];

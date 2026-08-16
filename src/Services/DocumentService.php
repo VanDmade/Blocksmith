@@ -2,6 +2,7 @@
 
 namespace VanDmade\Blocksmith\Services;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use VanDmade\Blocksmith\Events\DocumentUploaded;
@@ -11,6 +12,9 @@ use VanDmade\Blocksmith\Models\SigningKey;
 
 class DocumentService
 {
+
+    private const SORTABLE_COLUMNS = ['id', 'name', 'status', 'created_at', 'updated_at'];
+    private const SEARCHABLE_COLUMNS = ['name', 'description'];
 
     public function __construct(
         private readonly RevisionService $revisionService,
@@ -25,6 +29,24 @@ class DocumentService
     public function findByUuid(string $uuid): ?Document
     {
         return Document::where('uuid', $uuid)->first();
+    }
+
+    public function search(array $options, string $defaultSort = 'created_at'): Builder
+    {
+        $defaultOrder = 'asc';
+        $validSortBy = in_array($options['sort_by'] ?? null, self::SORTABLE_COLUMNS, true);
+        $sortBy = $validSortBy ? $options['sort_by'] : $defaultSort;
+        $sortOrder = ($options['sort_order'] ?? $defaultOrder) === 'desc' ? 'desc' : 'asc';
+        return Document::select($options['select'] ?? ['*'])
+            ->when(!empty($options['search']), function($query) use ($options) {
+                $search = $options['search'];
+                $query->where(function($query) use ($search) {
+                    foreach (self::SEARCHABLE_COLUMNS as $column) {
+                        $query->orWhere($column, 'like', "%{$search}%");
+                    }
+                });
+            })
+            ->orderBy($sortBy, $sortOrder);
     }
 
     public function create(
@@ -71,6 +93,17 @@ class DocumentService
         });
         // Dispatched after the transaction commits, not inside it.
         DocumentUploaded::dispatch($document, $revision);
+        return $document;
+    }
+
+    /**
+     * Updates the document's own fields only - name/description/keywords/metadata.
+     * Not a new revision, doesn't touch content/hash/anchoring at all.
+     */
+    public function update(Document $document, array $attributes): Document
+    {
+        $document->fill($attributes);
+        $document->save();
         return $document;
     }
 
