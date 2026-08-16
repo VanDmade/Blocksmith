@@ -12,8 +12,6 @@ class Log extends Model
 
     use HasOrganization;
 
-    // Matches the migration - only created_at, no updated_at. A log row is
-    // inserted once and never edited.
     const UPDATED_AT = null;
 
     protected $table = 'blocksmith_logs';

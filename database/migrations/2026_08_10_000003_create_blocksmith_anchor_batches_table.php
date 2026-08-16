@@ -15,6 +15,7 @@ return new class extends Migration
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamp('failed_at')->nullable();
+            $table->timestamp('last_verified_at')->nullable();
             $table->string('merkle_root', 128);
             $table->string('status', 32)->default('pending');
             $table->string('provider');

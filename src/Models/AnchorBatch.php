@@ -16,6 +16,7 @@ class AnchorBatch extends Model
         'submitted_at',
         'confirmed_at',
         'failed_at',
+        'last_verified_at',
         'merkle_root',
         'status',
         'provider',
@@ -26,6 +27,7 @@ class AnchorBatch extends Model
         'submitted_at' => 'datetime',
         'confirmed_at' => 'datetime',
         'failed_at' => 'datetime',
+        'last_verified_at' => 'datetime',
         'status' => AnchorBatchStatus::class,
     ];
 
