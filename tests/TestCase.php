@@ -27,6 +27,7 @@ abstract class TestCase extends Orchestra
             'prefix' => '',
         ]);
         $app['config']->set('queue.default', 'sync');
+        $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
     }
 
 }
