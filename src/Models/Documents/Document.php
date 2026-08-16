@@ -46,6 +46,11 @@ class Document extends Model
         'status' => DocumentStatus::DRAFT,
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -62,7 +67,7 @@ class Document extends Model
     }
 
     /**
-     * Get the document type that owns the document.
+     * @return BelongsToMany<Type>
      */
     public function type(): BelongsTo
     {
@@ -109,6 +114,14 @@ class Document extends Model
     public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
+    }
+
+    /**
+     * @return BelongsTo<User>
+     */
+    public function lastEditedBy(): BelongsTo
+    {
+        return $this->belongsTo(config('auth.providers.users.model'), 'last_edited_by');
     }
 
 }

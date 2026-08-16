@@ -14,6 +14,8 @@ return [
     // File extensions allowed for document uploads (e.g. ['pdf', 'png', 'jpg']).
     // Empty array means no restriction - any file type is accepted.
     'allowed_file_types' => [],
+    // How long (minutes) a document's temporary download link stays valid for.
+    'download_url_expiry_minutes' => 5,
     // Whether to verify the content of the document when verifying a revision
     'verify_content' => true,
     // This is the model that will be the "Organization" and used for organization scoping

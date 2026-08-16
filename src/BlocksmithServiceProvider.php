@@ -3,6 +3,7 @@
 namespace VanDmade\Blocksmith;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use VanDmade\Blocksmith\Anchoring\AnchorProviderInterface;
 use VanDmade\Blocksmith\Console\Commands\AddOrganizationScopingCommand;
@@ -36,6 +37,9 @@ class BlocksmithServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::define('manage-blocksmith', function($user = null) {
+            return $user !== null;
+        });
         $this->loadRoutesFrom(__DIR__.'/../routes.php');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'blocksmith');

@@ -44,6 +44,11 @@ class Revision extends Model
         'status' => RevisionStatus::PENDING,
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     public static function boot()
     {
         parent::boot();

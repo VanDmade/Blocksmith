@@ -28,6 +28,20 @@ Custodial private keys get stored with Laravel's `encrypted` cast, so they're en
 
 One thing worth knowing if you're upgrading an existing install: this cast doesn't retroactively encrypt anything already sitting in the database in plain text. Adding the cast only changes how things get written and read from that point forward. If you've already got real custodial keys stored, re-save each one (`$key->save()`) once the cast is in place to actually encrypt it - a small one-off command or migration is the easiest way to do that in bulk.
 
+## HTTP layer
+
+Routes are wired now (`routes.php`), gated behind `can:manage-blocksmith` - by default that just means "logged in," same pattern as Hookamatic's `manage-hookamatic` gate. Override it in your own app if you need something more specific, like admin-only.
+
+Route-model binding for `Document`/`Revision` resolves by `uuid`, not the internal auto-increment `id` - keeps the same identifier the CLI already uses (`blocksmith:verify-document`) and avoids exposing sequential internal ids over HTTP.
+
+## Downloading a document's file
+
+`DocumentController::get()` returns a temporary `download_url` alongside the document, valid for `blocksmith.download_url_expiry_minutes` (5 minutes by default). It's a signed route (`URL::temporarySignedRoute()`), not a call to `Storage::temporaryUrl()` - that matters because the `local` disk driver (the default) doesn't support `temporaryUrl()` at all, it throws if you try. Using a signed route instead of the disk's own temporary-URL mechanism means downloads work the same way regardless of which disk is configured.
+
+Because the signature itself is what authenticates the request, the download route deliberately sits outside the `can:manage-blocksmith` group - anyone holding a valid, unexpired link can use it, the same as any signed URL. Once it expires, `signed` middleware rejects it with a 403 automatically.
+
+Package routes registered via `loadRoutesFrom()` don't automatically get `SubstituteBindings` the way a normal app's routes do - it has to be added explicitly per route/group, or route-model binding silently doesn't happen. Worth remembering if you add more routes outside the main `blocksmith.` group later.
+
 ## See also
 
 - [Merkle Batching & Anchoring](02-merkle-batching.md#why-proofs-never-get-regenerated)

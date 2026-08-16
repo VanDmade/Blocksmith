@@ -18,6 +18,7 @@ These descriptions are pulled straight from the comments in the config file itse
 | `chunk_size` | `8192` | The chunk size to use when hashing and uploading files. |
 | `disk` | `'local'` | Where to upload the documents too. |
 | `allowed_file_types` | `[]` | File extensions allowed for document uploads (e.g. `['pdf', 'png', 'jpg']`). Empty array means no restriction - any file type is accepted. |
+| `download_url_expiry_minutes` | `5` | How long a document's temporary download link stays valid for. |
 | `verify_content` | `true` | Whether to verify the content of the document when verifying a revision. |
 | `organization_model` | `null` | This is the model that will be the "Organization" and used for organization scoping. |
 | `tables` | see below | Tables to add organization scoping to and the column to use. |
@@ -32,7 +33,7 @@ Defaults for `tables`:
 ],
 ```
 
-See [Signing](04-signing.md) for `signer`; [External Anchoring](03-external-anchoring.md) for `anchor_provider`; [Hash Chaining](01-hash-chaining.md) for `hash_algorithm`/`chunk_size`; [Verification](06-verification.md) for `verify_content`; [Artisan Commands](08-artisan-commands.md) for `organization_model`/`tables`.
+See [Signing](04-signing.md) for `signer`; [External Anchoring](03-external-anchoring.md) for `anchor_provider`; [Hash Chaining](01-hash-chaining.md) for `hash_algorithm`/`chunk_size`; [Verification](06-verification.md) for `verify_content`; [Artisan Commands](08-artisan-commands.md) for `organization_model`/`tables`; [Security](10-security.md) for `download_url_expiry_minutes`.
 
 ## `anchoring`
 

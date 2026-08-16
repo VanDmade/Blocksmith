@@ -4,10 +4,13 @@ namespace VanDmade\Blocksmith\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use VanDmade\Blocksmith\Events\BlocksmithLog;
 use VanDmade\Blocksmith\Http\Requests\DocumentRequest;
 use VanDmade\Blocksmith\Http\Requests\TableRequest;
 use VanDmade\Blocksmith\Models\Documents\Document;
+use VanDmade\Blocksmith\Models\Documents\Revision as DocumentRevision;
 use VanDmade\Blocksmith\Services\DocumentService;
 use VanDmade\Blocksmith\Services\HasherService;
 use Exception;
@@ -23,9 +26,43 @@ class DocumentController extends BlocksmithController
     public function get(Document $document): JsonResponse
     {
         try {
-            return $this->success([
-                'document' => $document->load('currentRevision'),
+            $document->load([
+                'type:id,name,description',
+                'lastEditedBy:id,name,email',
+                'currentRevision:id,uuid,revision_number,status,blocksmith_anchor_batch_id,blocksmith_signing_key_id',
             ]);
+            $pivot = $this->currentRevisionPivot($document);
+            return $this->success([
+                'document' => $document,
+                'file' => $pivot ? [
+                    'extension' => $pivot->extension,
+                    'mime_type' => $pivot->mime_type,
+                    'size' => $pivot->size,
+                    'download_url' => URL::temporarySignedRoute(
+                        'blocksmith.documents.download',
+                        now()->addMinutes(config('blocksmith.download_url_expiry_minutes', 5)),
+                        ['document' => $document->uuid]
+                    ),
+                ] : null,
+            ]);
+        } catch (Exception $error) {
+            BlocksmithLog::dispatch(
+                'error',
+                $error->getMessage(),
+                ['exception' => get_class($error)]
+            );
+            return $this->error($error->getMessage(), 500);
+        }
+    }
+
+    public function download(Document $document)
+    {
+        try {
+            $pivot = $this->currentRevisionPivot($document);
+            if (!$pivot) {
+                return $this->error('This document has no content to download yet.', 404);
+            }
+            return Storage::disk($pivot->disk)->response($pivot->path);
         } catch (Exception $error) {
             BlocksmithLog::dispatch(
                 'error',
@@ -180,6 +217,14 @@ class DocumentController extends BlocksmithController
             'mime_type' => $file->getClientMimeType(),
             'size' => $file->getSize(),
         ];
+    }
+
+    private function currentRevisionPivot(Document $document): ?DocumentRevision
+    {
+        if (empty($document->current_blocksmith_revision_id)) {
+            return null;
+        }
+        return DocumentRevision::where('blocksmith_revision_id', $document->current_blocksmith_revision_id)->first();
     }
 
 }
